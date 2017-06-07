@@ -9,12 +9,19 @@ Links:
 from __future__ import division, print_function, absolute_import
 
 import tflearn
+import tensorflow as tf
 from tflearn.data_utils import shuffle, to_categorical
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.estimator import regression
 from tflearn.data_preprocessing import ImagePreprocessing
 from tflearn.data_augmentation import ImageAugmentation
+
+# Added by Le Ning on June 7,2017
+tf.app.flags.DEFINE_float('learning_rate',0.001,"learning rate of convoluation net")
+tf.app.flags.DEFINE_integer('epoch_num',50,"training epoch of convoluation net")
+tf.app.flags.DEFINE_integer('batch_size',96,"batch size of convoluation net")
+FLAGS = tf.app.flags.FLAGS
 
 # Data loading and preprocessing
 from tflearn.datasets import cifar10
@@ -50,12 +57,12 @@ network = dropout(network, 0.5)
 network = fully_connected(network, 10, activation='softmax')
 network = regression(network, optimizer='adam',
                      loss='categorical_crossentropy',
-                     learning_rate=0.001)
+                     learning_rate=FLAGS.learning_rate)
 
 # Train using classifier
 model = tflearn.DNN(network, tensorboard_verbose=0)
-model.fit(X, Y, n_epoch=50, shuffle=True, validation_set=(X_test, Y_test),
-          show_metric=True, batch_size=96, run_id='cifar10_cnn')
+model.fit(X, Y, n_epoch=FLAGS.epoch_num, shuffle=True, validation_set=(X_test, Y_test),
+          show_metric=True, batch_size=FLAGS.batch_size, run_id='cifar10_cnn')
 
 # Manually save model
 model.save("cifar10_cnn")
